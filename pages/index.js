@@ -4,11 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 export default function Home() {
   const canvas = useRef();
   const [loaded, setLoaded] = useState(false);
-  const [arc, setArc] = useState(0);
-  const [size, setSize] = useState(3);
+  const [slope, setSlope] = useState(0.5);
+  const [intercept, setIntercept] = useState(0);
+  const [size, setSize] = useState(2);
   const [seed, setSeed] = useState('hello');
   const [paletteUrl, setPaletteUrl] = useState(
-    'https://coolors.co/palette/ccd5ae-e9edc9-fefae0-faedcd-d4a373'
+    'https://coolors.co/palette/e63946-f1faee-a8dadc-457b9d-1d3557'
   );
   const [paths, setPaths] = useState('3,7,5');
   let lastSeeds = useRef([]);
@@ -52,14 +53,20 @@ export default function Home() {
       }
     }
 
-    function addPoint(p1, p2, i) {
-      ctx.arcTo(p1.x, p1.y, p2.x, p2.y, parseInt(arc, 10));
+    function addPoint(p1, p2) {
+      ctx.quadraticCurveTo(
+        (p1.x + p2.x) * parseFloat(slope) + parseFloat(intercept),
+        (p1.y + p2.y) * parseFloat(slope) + parseFloat(intercept),
+        p2.x,
+        p2.y
+      );
     }
 
     function jumpAround(n) {
       ctx.beginPath();
+      ctx.moveTo(verticies[0].x, verticies[0].y);
       for (let i = 1; i <= n; i++) {
-        addPoint(verticies[i - 1], verticies[i], i - 1);
+        addPoint(verticies[i - 1], verticies[i]);
       }
       ctx.fill();
     }
@@ -83,7 +90,7 @@ export default function Home() {
       colorIndex = (colorIndex + 1) % palette.length;
       jumpAround(parseInt(n, 10));
     });
-  }, [size, seed, paletteUrl, paths, arc, loaded]);
+  }, [size, seed, paletteUrl, paths, slope, intercept, loaded]);
 
   function generateRandomSeed() {
     lastSeeds.current.push(seed);
@@ -124,8 +131,14 @@ export default function Home() {
         </label>
         <label>
           <span>
-            Palette from
-            <a href="https://coolors.co/">https://coolors.co/</a>
+            Palette from{' '}
+            <a
+              target="_blank"
+              href="https://coolors.co/palettes/trending"
+              rel="noreferrer"
+            >
+              https://coolors.co/
+            </a>
           </span>
           <input
             type="text"
@@ -142,11 +155,20 @@ export default function Home() {
           />
         </label>
         <label>
-          Arc Radius (0 for straight lines)
+          Slope (0.5 for straight lines)
           <input
             type="number"
-            value={arc}
-            onChange={(e) => setArc(e.target.value)}
+            value={slope}
+            step={0.1}
+            onChange={(e) => setSlope(e.target.value)}
+          />
+        </label>
+        <label>
+          Y Intercept (the b in y=mx+b)
+          <input
+            type="number"
+            value={intercept}
+            onChange={(e) => setIntercept(e.target.value)}
           />
         </label>
         <button onClick={generateRandomSeed}>Random Seed</button>

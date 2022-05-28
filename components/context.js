@@ -3,6 +3,8 @@ import { useState, useRef, createContext } from 'react';
 
 export const AppContext = createContext({});
 
+const canvasSize = 400;
+
 function getPalette(seed, url) {
   const myrng = new Math.seedrandom(seed);
 
@@ -22,6 +24,33 @@ function getPalette(seed, url) {
   return palette;
 }
 
+function getVerticies(seed, size) {
+  const cellSize = canvasSize / size;
+  const myrng = new Math.seedrandom(seed);
+  const verticies = [];
+
+  for (let x = 0; x <= size; x++) {
+    for (let y = 0; y <= size; y++) {
+      verticies.push({
+        x: cellSize * x,
+        y: cellSize * y,
+      });
+    }
+  }
+
+  // shuffle
+  for (let i = 0; i < verticies.length; i++) {
+    let t = {
+      ...verticies[i],
+    };
+    const r = Math.floor(myrng() * verticies.length);
+    verticies[i] = verticies[r];
+    verticies[r] = t;
+  }
+
+  return verticies;
+}
+
 export function AppProvider({ children }) {
   const [loaded, setLoaded] = useState(false);
   const [slope, setSlope] = useState(0.5);
@@ -34,6 +63,9 @@ export function AppProvider({ children }) {
   const [pathSizes, setPathSizes] = useState('3,7,5');
   let lastSeeds = useRef([]);
 
+  const verticies = loaded ? getVerticies(seed, size) : [];
+  const palette = loaded ? getPalette(seed, paletteUrl) : [];
+
   function generateRandomSeed() {
     lastSeeds.current.push(seed);
     setSeed((Math.random() * 100000) | (0 + ''));
@@ -43,6 +75,43 @@ export function AppProvider({ children }) {
     if (lastSeeds.current.length) {
       setSeed(lastSeeds.current.pop());
     }
+  }
+
+  function createPoint(p1, p2) {
+    return {
+      cx: (p1.x + p2.x) * parseFloat(slope) + parseFloat(intercept),
+      cy: (p1.y + p2.y) * parseFloat(slope) + parseFloat(intercept),
+      x: p2.x,
+      y: p2.y,
+    };
+  }
+
+  function getArt() {
+    let colorIndex = 1;
+    const paths = pathSizes.split(',').map((size) => {
+      const n = parseInt(size, 10);
+      const color = palette[colorIndex];
+      colorIndex = (colorIndex + 1) % palette.length;
+
+      const points = [];
+      if (verticies.length) {
+        for (let i = 1; i <= n; i++) {
+          points.push(createPoint(verticies[i - 1], verticies[i]));
+        }
+      }
+
+      return {
+        color,
+        start: verticies[0],
+        points,
+      };
+    });
+
+    return {
+      bg: palette[0],
+      size: canvasSize,
+      paths,
+    };
   }
 
   return (
@@ -62,8 +131,11 @@ export function AppProvider({ children }) {
         setPathSizes,
         generateRandomSeed,
         recoverLastSeed,
-        palette: loaded ? getPalette(seed, paletteUrl) : [],
+        canvasSize,
         loaded,
+        verticies,
+        palette,
+        getArt,
       }}
     >
       <Script

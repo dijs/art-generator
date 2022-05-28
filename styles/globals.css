@@ -4,12 +4,18 @@ body {
 main {
   display: flex;
   flex-direction: row-reverse;
-  justify-content: space-around;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .art {
   display: flex;
   flex-direction: column;
+}
+
+.controls {
+  margin-right: 10px;
 }
 
 canvas {
@@ -55,5 +61,9 @@ p {
     main {
       display: flex;
       flex-direction: column;      
+      justify-content: flex-start;
     }   
+    .controls {
+      margin: 0;
+    }
 }

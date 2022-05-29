@@ -1,4 +1,4 @@
-import { Slider } from '@mui/material';
+import { Button, Slider } from '@mui/material';
 import { useContext } from 'react';
 import { AppContext } from '../components/context';
 
@@ -27,6 +27,7 @@ export default function Controls() {
         <Slider
           min={2}
           max={16}
+          valueLabelDisplay="auto"
           aria-label="Resolution"
           value={size}
           onChange={(_, value) => setSize(value)}
@@ -42,14 +43,15 @@ export default function Controls() {
       </label>
       <label>
         <span>
-          Palette from{' '}
+          Use URL from a{' '}
           <a
             target="_blank"
             href="https://coolors.co/palettes/trending"
             rel="noreferrer"
           >
             https://coolors.co/
-          </a>
+          </a>{' '}
+          theme
         </span>
         <input
           type="text"
@@ -72,6 +74,7 @@ export default function Controls() {
           max={2}
           step={0.1}
           aria-label="Slope"
+          valueLabelDisplay="auto"
           value={slope}
           onChange={(_, value) => setSlope(value)}
         />
@@ -82,12 +85,17 @@ export default function Controls() {
           min={-100}
           max={100}
           aria-label="Intercept"
+          valueLabelDisplay="auto"
           value={intercept}
           onChange={(_, value) => setIntercept(value)}
         />
       </label>
-      <button onClick={generateRandomSeed}>Random Seed</button>
-      <button onClick={recoverLastSeed}>Go to previous seed</button>
+      <Button variant="contained" onClick={generateRandomSeed}>
+        Random Seed
+      </Button>
+      <Button variant="outlined" onClick={recoverLastSeed}>
+        Go to previous seed
+      </Button>
       <p>Tip: You can right-click and save the image if you love it!</p>
     </div>
   );

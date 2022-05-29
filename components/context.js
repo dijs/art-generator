@@ -56,7 +56,7 @@ export function AppProvider({ children }) {
   const [slope, setSlope] = useState(0.5);
   const [intercept, setIntercept] = useState(0);
   const [size, setSize] = useState(2);
-  const [seed, setSeed] = useState('hello');
+  const [seed, setSeed] = useState('Hello' + ((Math.random() * 100) | 0));
   const [paletteUrl, setPaletteUrl] = useState(
     'https://coolors.co/palette/e63946-f1faee-a8dadc-457b9d-1d3557'
   );
@@ -116,6 +116,30 @@ export function AppProvider({ children }) {
     };
   }
 
+  function getSvgData() {
+    const { bg, size, paths } = getArt();
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+    <rect fill="${bg}" width="${size}" height="${size}" />
+    ${paths
+      .filter((e) => e.start)
+      .map(({ color, start, points }, i) => {
+        return `<path
+            fill="${color}"
+            d="${`M${start.x},${start.y} ${points
+              .map((p) => `Q${p.cx},${p.cy} ${p.x},${p.y}`)
+              .join(' ')}`}" />`;
+      })
+      .join('\n')}
+  </svg>`;
+  }
+
+  function getBlobUrl() {
+    if (typeof window === 'undefined')
+      return 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    const blob = new Blob([getSvgData()], { type: 'image/svg+xml' });
+    return URL.createObjectURL(blob);
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -137,7 +161,7 @@ export function AppProvider({ children }) {
         loaded,
         verticies,
         palette,
-        getArt,
+        getBlobUrl,
       }}
     >
       <Script

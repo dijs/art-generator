@@ -96,7 +96,9 @@ export function AppProvider({ children }) {
       const points = [];
       if (verticies.length) {
         for (let i = 1; i <= n; i++) {
-          points.push(createPoint(verticies[i - 1], verticies[i]));
+          if (verticies[i - 1] && verticies[i]) {
+            points.push(createPoint(verticies[i - 1], verticies[i]));
+          }
         }
       }
 

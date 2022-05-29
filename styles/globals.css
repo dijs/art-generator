@@ -54,12 +54,16 @@ p {
 
 @media 
   (max-device-width: 400px) {
+    body {
+      overflow-y: hidden;
+    }
     main {
       display: flex;
       flex-direction: column;      
       justify-content: flex-start;
     }   
     .controls {
-      margin: 0;
+      margin: 0px;
+      padding: 10px;
     }
 }
